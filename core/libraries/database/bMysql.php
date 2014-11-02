@@ -1,7 +1,7 @@
 <?php
 /**
  * Connect to MySQL databases, execute querys, return database data
- * For PHP, EBFramework 1.x framework
+ * For PHP, bikePHP 0.x framework
  * 
  * Version history:
  * 1.0.2 (2014-09-22) - Function to check table for existence
@@ -11,7 +11,7 @@
  * @copyright Eduard Brokan, 2013
  * @version 1.0.2 (20143-08-22)
  */
-class ebMysql implements ebDBInterface {
+class bMysql implements bDBInterface {
 
     var $connection = false;
     var $query = '';    
@@ -28,7 +28,7 @@ class ebMysql implements ebDBInterface {
         //For PHP 5.5+
         $connection = mysqli_connect($host, $username, $password, null, (int)$port);
         if (mysqli_connect_errno()) {
-            ebDebug::debugError('Failed to connect to MySQL: ' . mysqli_connect_error());
+            bDebug::debugError('Failed to connect to MySQL: ' . mysqli_connect_error());
         }
         if (!$connection){
             return false;        
@@ -50,9 +50,9 @@ class ebMysql implements ebDBInterface {
      */
     private function setDB($database) {
         if (!$stat = mysqli_select_db($this->connection, $database)){
-            ebDebug::debugError('Could not select DB: ' . $database);
+            bDebug::debugError('Could not select DB: ' . $database);
         }else{
-            ebDebug::debug('Selected DB: ' . $database);
+            bDebug::debug('Selected DB: ' . $database);
         }
         return ($stat ? true : false);
     }
@@ -68,14 +68,14 @@ class ebMysql implements ebDBInterface {
         if (!$this->result) {
             if(mysql_errno() || mysql_error()){
                 $message = tWord('Query fail', 'system').': ('.mysql_errno().')' . mysql_error();
-                ebDebug::debugError($sql, $message);
+                bDebug::debugError($sql, $message);
                 if(class_exists('logs')){
                     logs::errorLogs($message.'; SQL: '.$sql);
                 }
             }
             return false;
         }
-        ebDebug::debugDatabase($sql.' ; Run time:'.round($timeEnd-$timeStart,3));   
+        bDebug::debugDatabase($sql.' ; Run time:'.round($timeEnd-$timeStart,3));   
         return true;     
     }
     

@@ -7,7 +7,7 @@
  * @return String URL to page 
  */
 function setURL($action, $params=array()){    
-    return ebUrl::createURL($action, $params);     
+    return bUrl::createURL($action, $params);     
 }
 
 ?>

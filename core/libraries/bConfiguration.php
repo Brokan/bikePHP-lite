@@ -1,6 +1,6 @@
 <?php
 /**
- * EBFramework 0.x framework system file
+ * bikePHP 0.x framework system file
  * Using for configurate module with saving information in files
  * 
  * Version history:
@@ -9,7 +9,7 @@
  * @copyright Eduard Brokan, 2014
  * @version 1.0.0 (2014-10-25)
  */
-class ebConfiguration{
+class bConfiguration{
     
     /**
      * Project configuration
@@ -27,16 +27,16 @@ class ebConfiguration{
         }
         
         /*set global configuration*/
-        $configPath = PATH_GLOBALS . '/config.php';
+        $configPath = bCore::getGlobalsPath() . '/config.php';
         if(file_exists($configPath)) {
             $config=require($configPath);
             if(is_array($config)){
                 self::$configuration = $config;
             }else{
-                ebDebug::debugError('Config file is not valid');
+                bDebug::debugError('Config file is not valid');
             }
         }else{
-            ebDebug::debugError('No config file found');
+            bDebug::debugError('No config file found');
         }
     }
     
@@ -46,16 +46,16 @@ class ebConfiguration{
      */
     public static function setThemeConfiguration($theme){
         /*set theme configuration*/
-        $themeConfigPath = PATH_THEMES . '/'.$theme.'/config.php';
+        $themeConfigPath = bTheme::getThemesPath() . '/'.$theme.'/config.php';
         if(file_exists($themeConfigPath)) {
             $config=require($themeConfigPath);
             if(is_array($config)){
                 self::$configuration = array_replace_recursive(self::$configuration, $config);
             }else{
-                ebDebug::debugError('Theme config file is not valid');
+                bDebug::debugError('Theme config file is not valid');
             }
         }else{
-            ebDebug::debugError('No theme config file found');
+            bDebug::debugError('No theme config file found');
         }
     }
     

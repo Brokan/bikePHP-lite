@@ -1,6 +1,6 @@
 <?php
 /**
- * EBFramework 1.x framework system file
+ * bikePHP 0.x framework system file
  * Using for standart file use
  * 
  * Version history:
@@ -9,7 +9,7 @@
  * @copyright Eduard Brokan, 2014
  * @version 1.0.0 (2014-10-25)
  */
-class ebFiles{
+class bFiles{
     
     /**
      * Read file

@@ -1,6 +1,6 @@
 <?php
 
-interface ebDBInterface {
+interface bDBInterface {
 
     function __construct($host, $username, $password, $database, $port='3306', $charset='UTF8');
     

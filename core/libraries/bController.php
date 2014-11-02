@@ -1,6 +1,6 @@
 <?php
 /**
- * EBFramework 1.x framework system file
+ * bikePHP 0.x framework system file
  * General file!
  * Control modules and actions use.
  * 
@@ -10,7 +10,7 @@
  * @copyright Eduard Brokan, 2014
  * @version 1.0.0 (2014-10-25)
  */
-class ebController{
+class bController{
     
     public $module;
     public $action;
@@ -34,21 +34,21 @@ class ebController{
     public $pageKeywords = '';
     
     function __construct(){ 
-        $this->theme = ebTheme::getTheme();
+        $this->theme = bTheme::getTheme();
     }
         
     /**
      * Run project
      */
     public function run(){
-        ebDebug::debug('Start RUN theme "'.$this->theme.'"');
-        $this->params=ebURL::getURLParams();
+        bDebug::debug('Start RUN theme "'.$this->theme.'"');
+        $this->params=bURL::getURLParams();
         if(empty($this->params['module'])){
-            ebDebug::debugError("No module set");
+            bDebug::debugError("No module set");
             return false;
         }        
         if(empty($this->params['action'])){
-            ebDebug::debugError("No action set");
+            bDebug::debugError("No action set");
             return false;
         } 
         $GLOBALS['urlParams']=$this->params;
@@ -60,7 +60,7 @@ class ebController{
      * Execute module action
      */
     public function moduleActionExecute($module, $action, $params=array()){
-        ebDebug::debug('Start execute Module: <b>'.$module.'</b>; Action: <b>'. $action.'</b>');
+        bDebug::debug('Start execute Module: <b>'.$module.'</b>; Action: <b>'. $action.'</b>');
         $this->module=$module;
         $this->action=$action;
         
@@ -78,12 +78,11 @@ class ebController{
         $this->params+=$params;
         $controller->params=$this->params;
         
-        ebDebug::debug('Start get content Module: <b>'.$this->module.'</b>; Action: <b>'. $this->action.'</b>');
+        bDebug::debug('Start get content Module: <b>'.$this->module.'</b>; Action: <b>'. $this->action.'</b>');
         $content = $controller->$actionCall($this->params);
-        ebDebug::debug('End get content Module: <b>'.$this->module.'</b>; Action: <b>'. $this->action.'</b>');
+        bDebug::debug('End get content Module: <b>'.$this->module.'</b>; Action: <b>'. $this->action.'</b>');
           
         /*Render layout*/
-        var_dump($controller->renderLayout);
         if($controller->renderLayout){
             $data['content']=$content;
             $content = $this->renderLayout($controller->renderLayout, $data, true);
@@ -95,7 +94,7 @@ class ebController{
         }else{
             $this->setControllerParametrsToThis($controller);
         }
-        ebDebug::debug('End execute Module: <b>'.$this->module.'</b>; Action: <b>'. $actionCall.'</b>');
+        bDebug::debug('End execute Module: <b>'.$this->module.'</b>; Action: <b>'. $actionCall.'</b>');
         return $content;
     }
     
@@ -103,16 +102,17 @@ class ebController{
         $moduleClass = $moduleName.'Controller';
                 
         /*Check for class exist*/
-        if(!EB_DEBUG && !ebCore::checkClassLocation($moduleClass)){   
-            ebUrl::redirect404();
+        if(!bCore::checkClassLocation($moduleClass)){   
+            bUrl::redirect404();
         }
-        $controller = new $moduleClass($action);        
+        $controller = new $moduleClass($action);
+        
         /*Check for method exist in the class*/      
-        if(!EB_DEBUG && !method_exists($controller, $actionCall)){
-           ebUrl::redirect404();
+        if(!method_exists($controller, $actionCall)){
+           bUrl::redirect404();
         }
         
-        $config = ebConfiguration::getConfiguration();
+        $config = bConfiguration::getConfiguration();
         $configParams = $config['params'];
         
         $controller->theme=$this->theme;
@@ -122,7 +122,7 @@ class ebController{
         if(empty($controller->renderHTMLLayout)){
             $controller->renderHTMLLayout=!empty($configParams['layoutHTML'])?$configParams['layoutHTML']:false;
         }        
-        $controller->moduleLocation = ebSystem::getModuleLocation($moduleName);
+        $controller->moduleLocation = bSystem::getModuleLocation($moduleName);
         return $controller;
     }
         
@@ -142,11 +142,11 @@ class ebController{
      * Return layout location
      */
     public function getLayoutLocation($layout){
-        $location =  PATH_THEMES . $this->theme. '/layouts/' . $layout ;
+        $location =  bTheme::getThemesPath() . $this->theme. '/layouts/' . $layout ;
         if(file_exists($location)) {
             return $location;               
         }
-        $location =  PATH_GLOBALS . 'layouts/' . $layout ;
+        $location =  bCore::getGlobalsPath() . 'layouts/' . $layout ;
         if(file_exists($location)) {
             return $location;               
         }
@@ -169,11 +169,11 @@ class ebController{
      */
     public function render($template, $params=array()){
         if(empty($this->moduleLocation)){
-            ebDebug::debug("Can't find module path on location: ".$this->moduleLocation);            
+            bDebug::debug("Can't find module path on location: ".$this->moduleLocation);            
             return false;
         }
         if(!$location = $this->getTemplateLocation($template)){            
-            ebDebug::debug("Can't find template - ".$template.' On location: '.$location);
+            bDebug::debug("Can't find template - ".$template.' On location: '.$location);
             return false;
         }        
         return $this->renderInternal($location,$params);
@@ -184,7 +184,7 @@ class ebController{
      */
     public function renderLayout($layout, $params=array(), $return = false){
         if(!$location = $this->getLayoutLocation($layout)){
-            ebDebug::debug("Can't find layout - ".$layout);
+            bDebug::debug("Can't find layout - ".$layout);
             return false;
         }
         return $this->renderInternal($location, $params, $return);  
@@ -226,7 +226,7 @@ class ebController{
         $this->setJSFiles();
         $this->setJavaScripts();   
         
-        $config = ebConfiguration::getConfiguration();
+        $config = bConfiguration::getConfiguration();
         $configParams = $config['params'];
         
         if(empty($this->pageTitle) && !empty($configParams['title'])){
@@ -241,7 +241,7 @@ class ebController{
     }
     
     private function setCSSFiles(){
-        $config = ebConfiguration::getConfiguration();
+        $config = bConfiguration::getConfiguration();
         $configParams = $config['params'];
         
         if(!empty($configParams['css'])){
@@ -266,7 +266,7 @@ class ebController{
     }
 
     private function setJSFiles(){
-        $config = ebConfiguration::getConfiguration();
+        $config = bConfiguration::getConfiguration();
         $configParams = $config['params'];
         
         foreach ($configParams['js'] as $fileName => $version) {
@@ -374,14 +374,14 @@ class ebController{
     public function addCSSFile($fileName, $version='', $weight='99', $external=false, $path=''){
         if(!$external){
             if(!empty($path) && !file_exists($path.$fileName)){
-                ebDebug::debug("Can't find CSS - ".$fileName.' On location: '.$path);
+                bDebug::debug("Can't find CSS - ".$fileName.' On location: '.$path);
                 return false;
             }        
             $path = $this->getFileLocation($fileName, 'css');
             if(empty($path)){
                 return false;
             }
-            $path = $this->getDomainCSS().str_replace(PATH_GENERAL, '', $path);            
+            $path = $this->getDomainCSS().str_replace(bCore::getBasePath(), '', $path);            
         }else{
             $path='';
         }
@@ -412,14 +412,14 @@ class ebController{
     public function addJSFile($fileName, $version='', $weight='99', $external=false, $path=''){
         if(!$external){
             if(!empty($path) && !file_exists($path.$fileName)){
-                ebDebug::debug("Can't find JS - ".$fileName.' On location: '.$path);
+                bDebug::debug("Can't find JS - ".$fileName.' On location: '.$path);
                 return false;
             }        
             $path = $this->getFileLocation($fileName, 'js');
             if(empty($path)){
                 return false;
             }
-            $path = $this->getDomainJS().str_replace(PATH_GENERAL, '', $path);
+            $path = $this->getDomainJS().str_replace(bCore::getBasePath(), '', $path);
         }else{
             $path='';
         }
@@ -466,19 +466,19 @@ class ebController{
         if(file_exists($location.$fileName)) {
             return $location;
         }
-        $location =  PATH_THEMES . $this->theme. '/'.$type.'/' ;
+        $location =  bTheme::getThemesPath() . $this->theme. '/'.$type.'/' ;
         if(file_exists($location. $fileName)) {
             return $location;               
         }
-        $location =  PATH_GLOBALS . $type.'/' ;
+        $location =  bCore::getGlobalsPath() . $type.'/' ;
         if(file_exists($location.$fileName)) {
             return $location;               
         }
-        $location =  PATH_CORE . $type.'/' ;
+        $location =  bCore::getCorePath() . $type.'/' ;
         if(file_exists($location.$fileName)) {
             return $location;               
         }
-        ebDebug::debug("Can't find ".$type." file - ".$fileName);
+        bDebug::debug("Can't find ".$type." file - ".$fileName);
         return false;
     }
     
@@ -494,7 +494,7 @@ class ebController{
         if(!empty($this->config->params['domains'][$type])){
             return $this->config->params['domains'][$type];
         }else{
-             return $this->config->params['domains'][$type] = ebUrl::getDomain().'/';
+             return $this->config->params['domains'][$type] = bUrl::getBaseUrl().'/';
         }
         return '/';
     }

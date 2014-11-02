@@ -1,6 +1,6 @@
 <?php
 /**
- * EBFramework 0.x framework system file
+ * bikePHP 0.x framework system file
  * Work with URL
  * 
  * Version history:
@@ -9,8 +9,26 @@
  * @copyright Eduard Brokan, 2014
  * @version 1.0.0
  */
-class ebUrl{
+class bURL{
 
+    /**
+     * URL manager
+     * @var Array
+     */
+    private static $urlRules = array();
+    
+    /**
+     * Default pages parametrs such as front page, 404
+     * @var Array 
+     */
+    private static $defaultPages = array();
+    
+    /**
+     * Domains of components (CSS files, JS files)
+     * @var Array 
+     */
+    private static $domains = array();
+    
     /**
     * Get current page domain
     * @return Get domain name
@@ -50,29 +68,98 @@ class ebUrl{
     }
 
     /**
+     * Set rules for links
+     * @param Array $urlRules
+     */
+    public static function setURLRules($urlRules){
+        self::$urlRules = array_replace_recursive(self::$urlRules, $urlRules);
+    }
+
+    /**
+     * Get URL rules
+     * @return Array
+     */
+    private static function getURLRules(){
+        return self::$urlRules;
+    }
+    
+    /**
+     * Set default pages parameters
+     * @param Array $defaultPages
+     */
+    public static function setDefaultPages($defaultPages){
+        self::$defaultPages = array_replace_recursive(self::$defaultPages, $defaultPages);
+    }
+    
+    /**
+     * Get page action
+     * @param String $page Page name
+     * @param Array $params (return; optional) Params of page
+     * @return String "module/action" of page or false if not found
+     */
+    public static function getDefaultPage($page, &$params=array()){
+        if(empty(self::$defaultPages[$page]['module']) || empty(self::$defaultPages[$page]['action'])){
+            bDebug::debugError('Default page '.$page.' not found');
+            return false;
+        }
+        $params = !empty(self::$defaultPages[$page]['params'])?self::$defaultPages[$page]['params']:array();
+        return self::$defaultPages[$page]['module'].'/'.self::$defaultPages[$page]['action']; 
+    }
+
+    /**
+     * Redirect to page
+     * @param String $page Page name
+     * @param type $statusCode (optional) Status code. Default - 302
+     * @return Boolean false if no page found
+     */
+    public static function redirectToDefaultPage($page, $statusCode=302){
+        $params = array();
+        $action = self::getDefaultPage($page, $params);
+        if(!$action){
+            bDebug::debugError("Can't redirect to page ".$page);
+            return false;
+        }
+        self::redirect($action, $params, $statusCode);
+    }
+    
+    /**
+     * Set domains for CSS, JS and others files
+     * @param Array $domains
+     */
+    public static function setDomains($domains){
+        self::$domains = array_replace_recursive(self::$domains, $domains);
+    }
+    
+    /**
+     * Get domain of file type
+     * @param String $type
+     * @return String domain
+     */
+    public static function setFileTypeDomain($type){
+        if(!empty(self::$domains[$type])){
+            return self::$domains[$type];
+        }
+        return self::getDomain();
+    }
+    
+    /**
      * Function to redirect from source code
      * @param String $action module/action
      * @param Array $params (optional) Parametrs of URL. Default - array()
      * @param Int $statusCode (optional) Status code. Default - 302
      */
-    public static function redirect($action, $params=array(),$statusCode=302){
-        $url = ebUrl::createURL($action, $params);
+    public static function redirect($action, $params=array(), $statusCode=302){
+        $url = bUrl::createURL($action, $params);
         header('Location: '.$url, true, $statusCode);
         die();
     }
 
     /**
      * Get front page action from configuration file
-     * @global Array $configuration from configuration file
      * @return String action of default page
      */
     public static function getFrontPageAction(){
-        global $configuration;
-        $action='default/page';
-        if(!empty($configuration->defaultPages['front']['module']) && !empty($configuration->defaultPages['front']['action'])){
-            $action=$configuration->defaultPages['front']['module'].'/'.$configuration->defaultPages['front']['action'];
-        }
-        return $action;
+        return self::getDefaultPage('front');
     }
 
     /**
@@ -80,22 +167,15 @@ class ebUrl{
      * @param type $statusCode Status code. Default - 302
      */
     public static function redirectFront($statusCode=302){
-        $action = self::getFrontPageAction();
-        self::redirect($action, array(), $statusCode);
+        self::redirectToDefaultPage('front', $statusCode);
     }
 
     /**
      * Get 404 page action from configuration file
-     * @global Array $configuration from configuration file
      * @return String action of page 404
      */
     public static function get404PageAction(){
-        global $configuration;
-        $action='default/404';
-        if(!empty($configuration->defaultPages['404']['module']) && !empty($configuration->defaultPages['404']['action'])){
-            $action=$configuration->defaultPages['404']['module'].'/'.$configuration->defaultPages['404']['action'];
-        }
-        return $action;
+        return self::getDefaultPage('404');
     }
 
     /**
@@ -103,8 +183,7 @@ class ebUrl{
      * @param type $statusCode Status code. Default - 302
      */
     public static function redirect404($statusCode=302){
-        $action = self::get404PageAction();
-        self::redirect($action, array(), $statusCode);
+        self::redirectToDefaultPage('404', $statusCode);
     }
 
     /**
@@ -113,55 +192,80 @@ class ebUrl{
      * @return Array
      */
     public static function getURLParams(){
-        $config = ebConfiguration::getConfiguration();
-        $rules = !empty($config['urlManager'])?$config['urlManager']:array();
-        $currentURL = ebUrl::getCurrentURL();
-
-        /*No URL Alias, get module and action from URL Configurations rules*/
-        $explodedParams = explode('?', $currentURL);
-        if(!empty($explodedParams[0])){
-            $currentURL = $explodedParams[0];
-        }
-        $explodedParams = explode('/', $currentURL);
+        $currentURL = bUrl::getCurrentURL();
+        $explodedParams = self::explodeURLToParams($currentURL);
         $params = array(
             'module' => '',
             'action' => '',
-        );                       
-        foreach ($rules as $urlRule => $moduleEvent) {
+        );
+        /*Get module and action from URL Configurations rules*/
+        foreach (self::getURLRules() as $urlRule => $moduleEvent) {
             $params = self::validateURLRules($urlRule, $explodedParams);   
-            if(!empty($params)){
-                foreach ($params as $key => $value) {
-                    if(!isset($_GET[$key])){
-                        $_GET[$key]=$value;
-                    }
-                }
-            }
+            self::setParamsToGet($params);
             if(!empty($params) || $urlRule==$currentURL){
-                $moduleParams = explode('/', $moduleEvent);
-                //set or check module
-                if ($moduleParams[0]!='<module>'){
-                    $params['module']=$moduleParams[0];
-                }
-                //set or check action
-                if ($moduleParams[1]!='<action>'){
-                    $params['action']=$moduleParams[1];
-                }                    
-                if(!empty($_REQUEST)){
-                    $params+=$_REQUEST;                    
-                }
-                return $params;
+                return self::fillParams($params, $moduleEvent);
             }
         }
         return $params;
     }
 
     /**
+     * Explode URL to params
+     * @param String $url
+     * @return Array
+     */
+    private static function explodeURLToParams($url){
+        $params = explode('?', $url);
+        if(!empty($params[0])){
+            $url = $params[0];
+        }
+        return explode('/', $url);
+    }
+
+    /**
+     * Set parameters to global GET
+     * @param Array $params
+     */
+    private static function setParamsToGet($params){
+        if(!empty($params)){
+            foreach ($params as $key => $value) {
+                if(bRequest::getGet($key)!==null){
+                    bRequest::setGet($key, $value);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Fill parameters with rule event
+     * @param Array $params
+     * @param String $moduleEvent
+     * @return Array
+     */
+    private static function fillParams($params, $moduleEvent){
+        $moduleParams = explode('/', $moduleEvent);
+        //set or check module
+        if ($moduleParams[0]!='<module>'){
+            $params['module']=$moduleParams[0];
+        }
+        //set or check action
+        if ($moduleParams[1]!='<action>'){
+            $params['action']=$moduleParams[1];
+        }
+        $requests = bRequest::getAll();
+        if(!empty($requests)){
+            $params+=$requests;                    
+        }
+        return $params;
+    }
+    
+    /**
      * Validate URL for URL rules
      * @param Array $urlRule
      * @param Array $explodedParams
      * @return boolean
      */
-    private static function validateURLRules($urlRule, $explodedParams){                        
+    private static function validateURLRules($urlRule, $explodedParams){
         $urlRulesValidate=explode('/', $urlRule);
         if(count($urlRulesValidate)!=count($explodedParams) && !empty($urlRulesValidate) && !empty($explodedParams)){
             return false;
@@ -211,26 +315,25 @@ class ebUrl{
      * @return String URL
      */
     public static function createURL($action, $params=array()){
-        $config = ebConfiguration::getConfiguration();
-
         $additionalParams=explode('/', $action);
-        if(empty($additionalParams[0]) || empty($additionalParams[1])) return 'Incorrect action';
+        if(empty($additionalParams[0]) || empty($additionalParams[1])){
+            bDebug::debugError('Not correct create URL action - '.$action);
+            return 'Incorrect action';
+        }
         $params['module']=$additionalParams[0];
         $params['action']=$additionalParams[1];
 
         $url='';
 
-        if(empty($url)){
-            $freeParams=count($params)+1;
-            foreach ($config['urlManager'] as $urlRule => $moduleEvent) {                                
-                $paramsNew=$params;
-                if(self::checkModule($moduleEvent, $paramsNew)){
-                    $freeParamsNew=0;                    
-                    $urlNew = self::buildURL($urlRule, $paramsNew, $freeParamsNew);                                        
-                    if(!empty($urlNew) && $freeParams>=$freeParamsNew){
-                        $url=$urlNew;
-                        $freeParams=$freeParamsNew;
-                    }
+        $freeParams=count($params)+1;
+        foreach (self::getURLRules() as $urlRule => $moduleEvent) {                                
+            $paramsNew=$params;
+            if(self::checkModule($moduleEvent, $paramsNew)){
+                $freeParamsNew=0;                    
+                $urlNew = self::buildURL($urlRule, $paramsNew, $freeParamsNew);                                        
+                if(!empty($urlNew) && $freeParams>=$freeParamsNew){
+                    $url=$urlNew;
+                    $freeParams=$freeParamsNew;
                 }
             }
         }

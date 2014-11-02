@@ -1,5 +1,5 @@
 <?php
-class Controller extends ebController{
+class Controller extends bController{
     
     public function __construct(){
         

@@ -1,6 +1,6 @@
 <?php
 /**
- * EBFramework 1.x framework system file
+ * bikePHP 0.x framework system file
  * Foo controller file with default actions
  * 
  * Version history:
