@@ -4,11 +4,11 @@
  */
 ?>
 <div>
-    <?php echo $this->moduleActionExecute('foo','header', array()); ?>
+    <?php echo bController::getModuleAction('foo','header', array()); ?>
 </div>
 <div>
     <?php echo $content; ?>
 </div>
 <div>
-    <?php echo $this->moduleActionExecute('foo','footer', array()); ?>
+    <?php echo bController::getModuleAction('foo','footer', array()); ?>
 </div>

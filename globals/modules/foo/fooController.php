@@ -9,7 +9,7 @@
  * @copyright Eduard Brokan, 2014
  * @version 1.0.0 (2014-10-25)
  */
-class fooController extends Controller{
+class fooController extends bController{
         
     /**
      * Front page action
@@ -27,7 +27,6 @@ class fooController extends Controller{
      * @return String content of block
      */
     public function actionHeader($params){
-        $this->renderLayout=false;
         return $this->render('header');        
     }
     
@@ -37,7 +36,6 @@ class fooController extends Controller{
      * @return String content of block
      */
     public function actionFooter($params){
-        $this->renderLayout=false;
         return $this->render('footer');        
     }
     

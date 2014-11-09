@@ -45,25 +45,29 @@ bURL::setDomains(array(
     'css'=>'',
     'js'=>'',
 ));
-//defined('PATH_CACHE') or define('PATH_CACHE', bCore::getBasePath().'cache/');
 
 /**
- * Set project general configuration
+ * Set page title, description and keyword
  */
-return array(
-    //default params for Layouts
-    'params' => array(
-        'theme' => 'default',
-        'layout'=>'default.php',
-        'layoutHTML'=>'html.php',
-        'css' => array(
-            'style.css'=>'1.0.0',
-        ),
-        'js' => array(
-            'main.js'=>'1.0.0',
-        ),
-        'title' => 'bikePHP-lite',
-        'description' => 'Simple PHP framework',
-        'keywords' => 'PHP, framework, bikePHP-lite',
-    ),
-);
+bRender::setPageTitle('bikePHP-lite');
+bRender::setPageDescription('Simple PHP framework');
+bRender::setPageKeywords('PHP, framework, bikePHP-lite');
+/**
+ * Set page layouts
+ */
+bRender::setLayout('default.php');
+bRender::setLayoutHTML('html.php');
+/**
+ * Add CSS files to layout render
+ */
+bRender::addCSSFile('style.css', '1.0.0', '1');
+/**
+ * Add JS files to layout render
+ */
+bRender::addJSFile('main.js', '1.0.0', '1');
+
+
+/**
+ * Other configuration
+ */
+return array();

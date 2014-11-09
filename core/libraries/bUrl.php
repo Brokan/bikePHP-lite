@@ -135,13 +135,13 @@ class bURL{
      * @param String $type
      * @return String domain
      */
-    public static function setFileTypeDomain($type){
+    public static function getFileTypeDomain($type){
         if(!empty(self::$domains[$type])){
             return self::$domains[$type];
         }
         return self::getDomain();
     }
-    
+
     /**
      * Function to redirect from source code
      * @param String $action module/action
