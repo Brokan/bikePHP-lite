@@ -24,10 +24,14 @@ class bDebug{
     
     private static $beginTime;
     
-    private function __construct(){
+    /**
+     * Set start time of project opening
+     */
+    public static function setStartTime(){
         self::$beginTime = microtime(true);
     }
-    
+
+
     /**
      * List of log
      * @var Array 
@@ -145,6 +149,7 @@ class bDebug{
      */
     public static function show(){
         if(self::$debugToScreen && !empty(self::$log)){
+            echo "<br/><br/>Debug report:<br/>";
             echo join('<br/>',self::$log);
         }
     }

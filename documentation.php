@@ -18,9 +18,9 @@ Framework documentation
     
     1.4. Themes
     
-    Developers can use different themes for different actions. It's all can be set in config or in some module action.
+    Developers can use different themes for different actions. It's all can be set in config file or in some module action.
     In action can set theme using code
-    <?php $this->theme = 'default'; ?>
+    <?php bTheme::setTheme('default'); ?>
     
         1.4.1. Layouts
         
@@ -28,38 +28,41 @@ Framework documentation
         There is two types of layouts.
             - General with header and body
             - With content of body
-        Both layouts can change or unset in action with code    
-        To unset
-        <?php $this->renderLayout=false; //Content layout ?>
-        <?php $this->renderHTMLLayout=false; //Header and body layout ?>
-        
-        To set different layouts
-        <?php $this->renderLayout='otherLayout.php'; ?>
-        <?php $this->renderHTMLLayout='otherHTMLLayout.php'; ?>
-        
+        Both layouts can change in action with code
+        <?php bRender::setLayout('defult.php'); //Content layout ?>
+        <?php bRender::setLayoutHTML('html.php'); //Header and body layout ?>
         At first action try to use theme layout, if don't find theme layout, use global layout.
+        To unset layout rendering, need in action add line of code
+        <?php $this->renderLayout=false; ?>
         
         1.4.2. JavaScript files
         
         In configuration file can set JavaScript files. At first is checking for JS file in theme, than in global /js/ folder.
         For some action can set additional JavaScript file or JavaScript code.
         
-        Add JavaScript file in some action        
-        <?php $this->addJSFile('bar.js'); ?>
+        Add JavaScript file in some action
+        
+        <?php bRender::addJSFile('bar.js', '1.0', '99', 'bar'); ?>
+        
         For file check at first module of action /js/ folder, if not found, than theme, and than global /js/ folder.
-        If script is in some subfolder, can set file like
-        <?php $this->addJSFile('foo/bar.js'); ?>
+        If script is in some subfolder of theme or global, can set file like
+        
+        <?php bRender::addJSFile('../foo/bar.js'); ?>
         
         To add simple JavaScript, need to use code
-        <?php $this->addJSScripts('var foo="bar";');  ?>
+        
+        <?php bRender::addJSScripts('var foo="bar";');  ?>
         
         1.4.3. CSS files
         
         Simple like with JavaScript, CSS file can set in configuration file, and in module action.
         To set file in module action need use code
-        <?php $this->addCSSFile('bar.css'); ?>
+        
+        <?php bRender::addCSSFile('bar.css', '1.0', '99', 'bar'); ?>
+        
         Or if CSS in some other folder, for example in JS folder with some plugin
-        <?php $this->addCSSFile('../js/foo/bar.css'); ?>
+        
+        <?php bRender::addCSSFile('../js/foo/bar.css'); ?>
         
     1.5. Configuration file
     
@@ -72,7 +75,8 @@ Framework documentation
     
     There is file for simple PHP function at /globals/global_functions.php
     In this file developers can add some functions that need to be used in different places
-    For example to easer set some URL is using function 
+    For example to easer set some URL is using function
+    
     <?php setURL('foo/bar', array()); ?>
     
 2. Module structure

@@ -9,6 +9,7 @@ bTheme::setThemes(array(
 ));
 
 /*Debug configuration (For development)*/
+bDebug::setStartTime();
 bDebug::setDebug(true);
 bDebug::setDebugToFile(true);
 bDebug::setDebugToScreen(true);

@@ -58,7 +58,9 @@ class bMysql implements bDBInterface {
     }
         
     public function execute(){
-        if(!$sql=$this->getQuery()) return false;    
+        if(!$sql=$this->getQuery()){
+            return false;    
+        }
         $timeStart = microtime(true);       
         //For PHP 5.4-
         //$this->result = mysql_query($sql, $this->connection);        
@@ -122,12 +124,16 @@ class bMysql implements bDBInterface {
 
 
     public function query(){
-        if (!$this->execute()) return false;
+        if (!$this->execute()){
+            return false;
+        }
         return $this->result;
     }
    
     public function queryAll(){
-        if (!$this->execute()) return false;
+        if (!$this->execute()){
+            return false;
+        }
         $return = array();
         while($object = mysqli_fetch_object($this->result)) {
             $row=array();
@@ -140,7 +146,9 @@ class bMysql implements bDBInterface {
     }
     
     public function queryRow(){
-        if (!$this->execute()) return false;
+        if (!$this->execute()){
+            return false;
+        }
         $return = array();
         while($object = mysqli_fetch_object($this->result)) {
             $row=array();
@@ -153,11 +161,13 @@ class bMysql implements bDBInterface {
     }
     
     public function queryScalar(){
-        if (!$this->execute()) return false;
+        if (!$this->execute()){
+            return false;
+        }
         $return = array();
         while($object = mysqli_fetch_object($this->result)) {
             $row=array();
-            foreach ($object as $key => $value) {
+            foreach ($object as $value) {
                 return $this->valueRevert($value);
             }
             return $row;
@@ -173,7 +183,9 @@ class bMysql implements bDBInterface {
      * Close connection to db 
      */
     function close() {
-        if (!$this->connection)  return false;
+        if (!$this->connection){
+            return false;
+        }
         @mysql_close($this->connection);
     }
     
@@ -193,8 +205,9 @@ class bMysql implements bDBInterface {
         $queryColumns = array();
         $queryParams = array();
         foreach ($fields as $key => $val) {
-            if (in_array($key, array("id")))
+            if (in_array($key, array("id"))){
                 continue;
+            }
             $queryColumns[$key] = " `" . $key . "`";
             $queryParams[$key] = ':' . $key.' ';
         }
@@ -214,8 +227,9 @@ class bMysql implements bDBInterface {
         $querySet = array();
         $queryParams = array();
         foreach ($fields as $key => $val) {
-            if (in_array($key, array("id")))
+            if (in_array($key, array("id"))){
                 continue;
+            }
             $queryParams[$key] = ':' . $key.' ';
             $querySet[$key] = " `" . $key . "`=" . $queryParams[$key].' ';
         }
